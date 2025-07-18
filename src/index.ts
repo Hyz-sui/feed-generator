@@ -1,7 +1,12 @@
 import dotenv from 'dotenv'
 import FeedGenerator from './server'
+import { TopicsProvider } from './providers/topics-provider'
+import { AlgosProvider } from './providers/algos-provider'
 
 const run = async () => {
+  const topicsProvider = new TopicsProvider()
+  const algosProvider = new AlgosProvider()
+
   dotenv.config()
   const hostname = maybeStr(process.env.FEEDGEN_HOSTNAME) ?? 'example.com'
   const serviceDid =
@@ -19,7 +24,7 @@ const run = async () => {
       maybeInt(process.env.FEEDGEN_SUBSCRIPTION_RECONNECT_DELAY) ?? 3000,
     hostname,
     serviceDid,
-  })
+  }, topicsProvider, algosProvider)
   await server.start()
   console.log(
     `🤖 running feed generator at http://${server.cfg.listenhost}:${server.cfg.port}`,
