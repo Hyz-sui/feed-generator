@@ -11,7 +11,7 @@ export const migrationProvider: MigrationProvider = {
 migrations['001'] = {
   async up(db: Kysely<unknown>) {
     await db.schema
-      .createTable('post')
+      .createTable('watanare_post')
       .addColumn('uri', 'varchar', (col) => col.primaryKey())
       .addColumn('cid', 'varchar', (col) => col.notNull())
       .addColumn('indexedAt', 'varchar', (col) => col.notNull())
@@ -23,7 +23,7 @@ migrations['001'] = {
       .execute()
   },
   async down(db: Kysely<unknown>) {
-    await db.schema.dropTable('post').execute()
+    await db.schema.dropTable('watanare_post').execute()
     await db.schema.dropTable('sub_state').execute()
   },
 }

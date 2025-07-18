@@ -1,5 +1,5 @@
 export type DatabaseSchema = {
-  post: Post
+  watanare_post: Post
   sub_state: SubState
 }
 
