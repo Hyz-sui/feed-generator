@@ -134,14 +134,14 @@ type Operations<T = Record<string, unknown>> = {
   deletes: DeleteOp[]
 }
 
-type CreateOp<T> = {
+export type CreateOp<T> = {
   uri: string
   cid: string
   author: string
   record: T
 }
 
-type DeleteOp = {
+export type DeleteOp = {
   uri: string
 }
 
