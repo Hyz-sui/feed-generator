@@ -1,14 +1,10 @@
 {
-  "trailingComma": "all",
+  "trailingComma": "es5",
   "tabWidth": 2,
   "semi": false,
   "singleQuote": true,
-  "overrides": [
-    {
-      "files": "*.hbs",
-      "options": {
-        "singleQuote": false
-      }
-    }
-  ]
+  "arrowParens": "always",
+  "quoteProps": "as-needed",
+  "printWidth": 80,
+  "endOfLine": "lf"
 }
