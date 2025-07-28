@@ -1,8 +1,8 @@
-import { OutputSchema } from '../lexicon/types/app/bsky/feed/getFeedSkeleton';
+import { OutputSchema } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
 
-import { AppContext } from "../config";
+import { AppContext } from '../config'
 
 export interface Algo {
-    get: (context: AppContext, params: any) => Promise<OutputSchema>
-    shortname: string
+  get: (context: AppContext, params: any) => Promise<OutputSchema>
+  shortname: string
 }

@@ -4,7 +4,11 @@ import { AppContext } from '../config'
 import { AtUri } from '@atproto/syntax'
 import { AlgosProvider } from '../providers/algos-provider'
 
-export default function (server: Server, ctx: AppContext, algosProvider: AlgosProvider) {
+export default function (
+  server: Server,
+  ctx: AppContext,
+  algosProvider: AlgosProvider
+) {
   server.app.bsky.feed.getFeedSkeleton(async ({ params, req }) => {
     const feedUri = new AtUri(params.feed)
     const algos = algosProvider.get()
@@ -16,7 +20,7 @@ export default function (server: Server, ctx: AppContext, algosProvider: AlgosPr
     ) {
       throw new InvalidRequestError(
         'Unsupported algorithm',
-        'UnsupportedAlgorithm',
+        'UnsupportedAlgorithm'
       )
     }
 
