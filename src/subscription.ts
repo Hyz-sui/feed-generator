@@ -23,8 +23,8 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
     const ops = await getOpsByType(evt)
 
     for (const topic of this.topicsProvider.get()) {
-      topic.handleDeletion(this.db, ops.posts.deletes)
-      topic.handleCreation(this.db, ops.posts.creates)
+      await topic.handleDeletion(this.db, ops.posts.deletes)
+      await topic.handleCreation(this.db, ops.posts.creates)
     }
   }
 }
