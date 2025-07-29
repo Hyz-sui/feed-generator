@@ -1,14 +1,12 @@
-import { Topic } from "../topics/topic"
-import { WatanareTopic } from "../topics/topics/watanare-topic"
-
-const topics: Topic[] = process.env.NODE_ENV === 'production'
-    ? [new WatanareTopic()]
-    : [
-        // デバッグ用トピックを入れるところ
-
-        new WatanareTopic()
-    ]
+import { Topic } from '../topics/topic'
+import { WatanareTopic } from '../topics/topics/watanare-topic'
 
 export class TopicsProvider {
-    get = (): Topic[] => topics
+  private readonly topics: Topic[]
+
+  constructor(topics: Topic[]) {
+    this.topics = topics
+  }
+
+  get = (): Topic[] => this.topics
 }
