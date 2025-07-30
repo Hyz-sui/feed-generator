@@ -1,11 +1,17 @@
 import { AppContext } from '../config'
-import { OutputSchema } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
+import {
+  OutputSchema,
+  QueryParams,
+} from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
 
 import { Algo } from './algo'
 
 export class WatanareTimelineAlgo implements Algo {
   shortname: string = 'watanare-timeline'
-  get = async (context: AppContext, params: any): Promise<OutputSchema> => {
+  get = async (
+    context: AppContext,
+    params: QueryParams
+  ): Promise<OutputSchema> => {
     const builder = context.db
       .selectFrom('watanare_post')
       .selectAll()
