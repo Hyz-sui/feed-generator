@@ -13,6 +13,7 @@ import { FileLoggingService } from './services/logging/file-logging-service'
 import { ConsoleLoggingService } from './services/logging/console-logging-service'
 import { WinstonLoggingService } from './services/logging/winston-logging-service'
 import winston from 'winston'
+import { WatanareHotAlgo } from './algos/watanare-hot-algo'
 
 const run = async () => {
   dotenv.config()
@@ -48,7 +49,10 @@ const run = async () => {
         ]
   const topicsProvider = new TopicsProvider(topics)
 
-  const algos: Algo[] = [new WatanareTimelineAlgo()]
+  const algos: Algo[] = [
+    new WatanareTimelineAlgo(),
+    new WatanareHotAlgo(atprotoClientProvider),
+  ]
   const algosProvider = new AlgosProvider(algos)
 
   // 起動
