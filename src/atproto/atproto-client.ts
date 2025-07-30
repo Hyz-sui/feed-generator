@@ -30,4 +30,9 @@ export class AtprotoClient {
     } while (cursor)
     return members
   }
+
+  getPostLikes = async (uri: string): Promise<number> => {
+    const res = await this.atpAgent.app.bsky.feed.getLikes({ uri: uri })
+    return res.data.likes.length
+  }
 }
