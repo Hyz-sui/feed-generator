@@ -77,7 +77,7 @@ export class WinstonLoggingService implements LoggingService {
         new DailyRotateFile({
           frequency: '7d',
           dirname: 'data/logs',
-          filename: 'errors.log',
+          filename: 'errors-%DATE%.log',
           level: 'error',
           handleExceptions: true,
           handleRejections: true,
