@@ -1,8 +1,9 @@
 import { Database } from '../db'
-import { Record } from '../lexicon/types/app/bsky/feed/post'
+import { Record as Post } from '../lexicon/types/app/bsky/feed/post'
+import { MinifiedDb } from '../db/minified-db'
 import { CreateOp, DeleteOp } from '../util/subscription'
 
 export interface Topic {
-  handleCreation: (db: Database, creation: CreateOp<Record>[]) => Promise<void>
-  handleDeletion: (db: Database, deletion: DeleteOp[]) => Promise<void>
+  handleCreation: (db: MinifiedDb, creation: CreateOp<Post>[]) => Promise<void>
+  handleDeletion: (db: MinifiedDb, deletion: DeleteOp[]) => Promise<void>
 }

@@ -3,6 +3,7 @@ import {
   OutputSchema as RepoEvent,
   isCommit,
 } from './lexicon/types/com/atproto/sync/subscribeRepos'
+import { MinifiedDb } from './db/minified-db'
 import { TopicsProvider } from './providers/topics-provider'
 import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription'
 
@@ -12,7 +13,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 
   readonly topicsProvider: TopicsProvider
 
-  constructor(topicsProvider: TopicsProvider, db: Database, service: string) {
+  constructor(topicsProvider: TopicsProvider, db: MinifiedDb, service: string) {
     super(db, service)
     this.topicsProvider = topicsProvider
   }

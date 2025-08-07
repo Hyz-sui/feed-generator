@@ -1,8 +1,9 @@
 import { Database } from './db'
 import { DidResolver } from '@atproto/identity'
+import { MinifiedDb } from './db/minified-db'
 
 export type AppContext = {
-  db: Database
+  db: MinifiedDb
   didResolver: DidResolver
   cfg: Config
 }
