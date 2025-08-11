@@ -1,9 +1,9 @@
-import { AtprotoClient } from '../atproto/atproto-client'
+import { AtprotoAccessor } from '../atproto/atproto-client'
 
 export class AtprotoClientProvider {
-  private readonly atprotoClient: AtprotoClient
+  private readonly atprotoClient: AtprotoAccessor
 
-  constructor(atprotoClient: AtprotoClient) {
+  constructor(atprotoClient: AtprotoAccessor) {
     this.atprotoClient = atprotoClient
   }
 
