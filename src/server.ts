@@ -68,6 +68,7 @@ export class FeedGenerator {
     describeGenerator(server, ctx, algosProvider)
     app.use(server.xrpc.router)
     app.use(wellKnown(ctx))
+    app.use(express.static(`${__dirname}/public`))
 
     return new FeedGenerator(app, db, firehose, cfg)
   }
