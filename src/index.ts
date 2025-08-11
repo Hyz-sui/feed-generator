@@ -97,6 +97,7 @@ const run = async () => {
   loggingService.global.info(
     `🤖 running feed generator at http://${server.cfg.listenhost}:${server.cfg.port}`
   )
+  loggingService.global.info(`with [${process.env.NODE_ENV}] env`)
 }
 
 const maybeStr = (val?: string) => {
