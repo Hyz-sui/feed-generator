@@ -1,9 +1,8 @@
 import { AtUri } from '@atproto/syntax'
-import {} from '@atproto/lexicon'
-import AtpAgent, { Agent, Did } from '@atproto/api'
+import { Agent } from '@atproto/api'
 import { Logger, LoggingService } from '../services/logging/logging-service'
 
-export class AtprotoClient {
+export class AtprotoClient implements AtprotoAccessor {
   private readonly atpAgent: Agent
   private readonly log: Logger
 
@@ -25,7 +24,6 @@ export class AtprotoClient {
       const newItems = res.data.items
       members = members.concat(newItems.map((item) => item.subject.did))
       cursor = res.data.cursor
-      this.log.info(`fetched ${newItems.length} items, total ${members.length}`)
       await new Promise((resolve) => setTimeout(resolve, 100))
     } while (cursor)
     return members
@@ -35,4 +33,29 @@ export class AtprotoClient {
     const res = await this.atpAgent.app.bsky.feed.getLikes({ uri: uri })
     return res.data.likes.length
   }
+
+  // getPost = async (query: {
+  //   repo: string
+  //   collection: string
+  //   rkey: string
+  // }): Promise<Post | undefined> => {
+  //   const res = await this.atpAgent.com.atproto.repo.getRecord({
+  //     repo: query.repo,
+  //     collection: query.collection,
+  //     rkey: query.rkey,
+  //   })
+  //   const record = res.data.value
+  //   return isPost(record) ? record : undefined
+  // }
 }
+
+export interface AtprotoAccessor {
+  getListMembers: (atUri: AtUri) => Promise<string[]>
+  getPostLikes: (uri: string) => Promise<number>
+  // getPost: (query: {
+  //   repo: string
+  //   collection: string
+  //   rkey: string
+  // }) => Promise<Post | undefined>
+}
+
