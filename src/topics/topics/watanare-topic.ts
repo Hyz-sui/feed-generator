@@ -1,11 +1,13 @@
 import { AtUri } from '@atproto/syntax'
-import { Database } from '../../db'
 import { Record } from '../../lexicon/types/app/bsky/feed/post'
 import { AtprotoClientProvider } from '../../providers/atproto-client-provider'
 import { CreateOp, DeleteOp } from '../../util/subscription'
 import { Topic } from '../topic'
 import { Logger, LoggingService } from '../../services/logging/logging-service'
 import * as pattern from '../../text/pattern'
+import * as postUtility from '../../atproto/post-utility'
+import { MinifiedDb } from '../../db/minified-db'
+import { isImage } from '../../lexicon/types/app/bsky/embed/images'
 
 // マッチ時点で適合する正規表現
 const regex =
@@ -22,6 +24,16 @@ const multiPatterns = [
   'フォーくん',
 ]
 
+const lower_tags: string[] = ['わたなれ', 'わたなれアニメ'].map((tag) =>
+  tag.toLowerCase()
+)
+const lower_englishTags: string[] = [
+  'watanare',
+  'theresnofreakingwayillbeyourloverunless',
+].map((tag) => tag.toLowerCase())
+
+type MatchReason = 'tag' | 'tag/en' | 'text' | 'alt' | 'multiPattern'
+
 export class WatanareTopic implements Topic {
   private readonly atprotoProvider: AtprotoClientProvider
   private readonly log: Logger
@@ -31,19 +43,21 @@ export class WatanareTopic implements Topic {
   constructor(atprotoProvider: AtprotoClientProvider, log: LoggingService) {
     this.atprotoProvider = atprotoProvider
     this.log = log.getLogger(WatanareTopic.name)
+    this.ignoreListLastUpdateTime = Number.NEGATIVE_INFINITY
   }
 
   handleCreation = async (
-    db: Database,
+    db: MinifiedDb,
     creations: CreateOp<Record>[]
   ): Promise<void> => {
     const matches: CreateOp<Record>[] = []
     for (const creation of creations) {
-      if (await this.isMatch(creation.author, creation.record)) {
+      const matching = await this.isMatch(creation.author, creation.record)
+      if (matching.isMatch) {
         matches.push(creation)
 
         this.log.info('============================')
-        this.log.info(`New post found:`)
+        this.log.info(`New post found: ${matching.reason}`)
         this.log.info('------------------------------')
         const rkey = creation.uri.split('/').at(-1)
         this.log.info(
@@ -68,7 +82,7 @@ export class WatanareTopic implements Topic {
       .execute()
   }
   handleDeletion = async (
-    db: Database,
+    db: MinifiedDb,
     deletion: DeleteOp[]
   ): Promise<void> => {
     db.deleteFrom('watanare_post')
@@ -80,39 +94,73 @@ export class WatanareTopic implements Topic {
       .execute()
   }
 
-  private isMatch = async (
+  isMatch = async (
     author: string,
     record: Record
-  ): Promise<boolean> => {
+  ): Promise<{ readonly isMatch: boolean; readonly reason?: MatchReason }> => {
     // 除外リスト
-    const ignore = await this.getIgnoredDids()
-    if (ignore.includes(author)) {
-      return false
+    if (await this.isIgnored(author)) {
+      return { isMatch: false }
+    }
+
+    const lower_postTags = postUtility
+      .getTags(record)
+      .map((tag) => tag.toLowerCase())
+
+    // nofeedは拾わない
+    if (lower_postTags.includes('nofeed')) {
+      return { isMatch: false }
+    }
+
+    // いずれかのタグがついていれば適合
+    if (lower_postTags.some((tag) => lower_tags.includes(tag))) {
+      return { isMatch: true, reason: 'tag' }
+    }
+    if (
+      lower_postTags.some((tag) => lower_englishTags.includes(tag)) &&
+      record.langs &&
+      record.langs.includes('ja')
+    ) {
+      return { isMatch: true, reason: 'tag/en' }
     }
 
     const text = record.text
+
     // マッチ時点で適合と判断する条件
+    // 本文
     if (regex.test(text)) {
-      return true
+      return { isMatch: true, reason: 'text' }
     }
-    const alts = (
-      record.embed?.images as { images: { alt: string }[] }
-    )?.images?.map((image) => image.alt)
+    // alt
+    const alts = (() => {
+      if (record.embed?.images && Array.isArray(record.embed.images)) {
+        return record.embed.images
+          .filter((image) => isImage(image))
+          .map((image) => image.alt)
+      }
+      return undefined
+    })()
     if (alts) {
       for (const alt of alts) {
         if (regex.test(alt)) {
-          return true
+          return { isMatch: true, reason: 'alt' }
         }
       }
     }
 
-    // 本文とaltを合算して2つ以上マッチすれば適合
+    // 本文とaltを合算して2つ以上マッチすれば適合する条件
     if (
       pattern.includesCountOf([text, ...(alts ? alts : [])], multiPatterns, 2)
     ) {
-      return true
+      return { isMatch: true, reason: 'multiPattern' }
     }
-    return false
+
+    return { isMatch: false }
+  }
+
+  isIgnored = async (author: string): Promise<boolean> => {
+    const ignore = await this.getIgnoredDids()
+    return ignore.includes(author)
   }
 
   getIgnoredDids = async (): Promise<string[]> => {
@@ -122,7 +170,7 @@ export class WatanareTopic implements Topic {
       Date.now() - this.ignoreListLastUpdateTime > 60000
     ) {
       const oldMembers = this.ignoredDids
-      this.ignoredDids = []
+      this.ignoredDids ??= []
       this.ignoreListLastUpdateTime = Date.now()
       const newMembers = await this.atprotoProvider
         .get()
