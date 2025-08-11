@@ -5,23 +5,24 @@ import { DidResolver, MemoryCache } from '@atproto/identity'
 import { createServer } from './lexicon'
 import feedGeneration from './methods/feed-generation'
 import describeGenerator from './methods/describe-generator'
-import { createDb, Database, migrateToLatest } from './db'
+import { isDatabase, migrateToLatest } from './db'
 import { FirehoseSubscription } from './subscription'
 import { AppContext, Config } from './config'
 import wellKnown from './well-known'
 import { TopicsProvider } from './providers/topics-provider'
 import { AlgosProvider } from './providers/algos-provider'
+import { MinifiedDb } from './db/minified-db'
 
 export class FeedGenerator {
   public app: express.Application
   public server?: http.Server
-  public db: Database
+  public db: MinifiedDb
   public firehose: FirehoseSubscription
   public cfg: Config
 
   constructor(
     app: express.Application,
-    db: Database,
+    db: MinifiedDb,
     firehose: FirehoseSubscription,
     cfg: Config
   ) {
@@ -33,11 +34,11 @@ export class FeedGenerator {
 
   static create(
     cfg: Config,
+    db: MinifiedDb,
     topicsProvider: TopicsProvider,
     algosProvider: AlgosProvider
   ) {
     const app = express()
-    const db = createDb(cfg.sqliteLocation)
     const firehose = new FirehoseSubscription(
       topicsProvider,
       db,
@@ -59,7 +60,7 @@ export class FeedGenerator {
       },
     })
     const ctx: AppContext = {
-      db,
+      db: db,
       didResolver,
       cfg,
     }
@@ -72,7 +73,9 @@ export class FeedGenerator {
   }
 
   async start(): Promise<http.Server> {
-    await migrateToLatest(this.db)
+    if (isDatabase(this.db)) {
+      await migrateToLatest(this.db)
+    }
     this.firehose.run(this.cfg.subscriptionReconnectDelay)
     this.server = this.app.listen(this.cfg.port, this.cfg.listenhost)
     await events.once(this.server, 'listening')

@@ -14,6 +14,8 @@ import { ConsoleLoggingService } from './services/logging/console-logging-servic
 import { WinstonLoggingService } from './services/logging/winston-logging-service'
 import winston from 'winston'
 import { WatanareHotAlgo } from './algos/watanare-hot-algo'
+import { createDb } from './db'
+import { isMinifiedDb } from './db/minified-db'
 
 const run = async () => {
   dotenv.config()
@@ -55,6 +57,19 @@ const run = async () => {
   ]
   const algosProvider = new AlgosProvider(algos)
 
+  const sqliteLocation =
+    maybeStr(process.env.FEEDGEN_SQLITE_LOCATION) ?? ':memory:'
+  const db = (() => {
+    const rawDb: any = createDb(sqliteLocation)
+    rawDb.isDatabase = true
+    if (!isMinifiedDb(rawDb)) {
+      throw new Error(
+        'This should not be possible, but we got an illegal db object. Check your code.'
+      )
+    }
+    return rawDb
+  })()
+
   // 起動
   const hostname = maybeStr(process.env.FEEDGEN_HOSTNAME) ?? 'example.com'
   const serviceDid =
@@ -63,8 +78,7 @@ const run = async () => {
     {
       port: maybeInt(process.env.FEEDGEN_PORT) ?? 3000,
       listenhost: maybeStr(process.env.FEEDGEN_LISTENHOST) ?? 'localhost',
-      sqliteLocation:
-        maybeStr(process.env.FEEDGEN_SQLITE_LOCATION) ?? ':memory:',
+      sqliteLocation: sqliteLocation,
       subscriptionEndpoint:
         maybeStr(process.env.FEEDGEN_SUBSCRIPTION_ENDPOINT) ??
         'wss://bsky.network',
@@ -75,6 +89,7 @@ const run = async () => {
       hostname,
       serviceDid,
     },
+    db,
     topicsProvider,
     algosProvider
   )
