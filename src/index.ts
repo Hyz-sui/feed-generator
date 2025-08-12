@@ -23,17 +23,32 @@ const run = async () => {
   // ロギングを初期化
   const loggerConfig = maybeInt(process.env.LOGGER)
   const loggingService =
-    process.env.NODE_ENV === 'production' || loggerConfig === 3
-      ? new WinstonLoggingService(
-          winston.createLogger(
-            WinstonLoggingService.configureDefaultWinstonOption(
-              process.env.SLACK_WEBHOOK_URL ?? undefined
+    (() => {
+      switch (loggerConfig) {
+        case 0:
+          return process.env.NODE_ENV === 'production'
+            ? new WinstonLoggingService(
+                winston.createLogger(
+                  WinstonLoggingService.configureDefaultWinstonOption(
+                    process.env.SLACK_WEBHOOK_URL ?? undefined
+                  )
+                )
+              )
+            : new ConsoleLoggingService()
+        case 1:
+          return new ConsoleLoggingService()
+        case 2:
+          return new FileLoggingService('data/feedgen.log')
+        case 3:
+          return new WinstonLoggingService(
+            winston.createLogger(
+              WinstonLoggingService.configureDefaultWinstonOption(
+                process.env.SLACK_WEBHOOK_URL ?? undefined
+              )
             )
           )
-        )
-      : loggerConfig === 2
-        ? new FileLoggingService('data/feedgen.log')
-        : new ConsoleLoggingService()
+      }
+    })() ?? new ConsoleLoggingService()
 
   // その他依存オブジェクトを初期化
   const atprotoAgent = new Agent('https://public.api.bsky.app')
