@@ -1,0 +1,83 @@
+name: Deploy Feed Generator
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install dependencies (including devDependencies for build)
+        run: yarn install --frozen-lockfile
+
+      - name: Build TypeScript
+        run: yarn build # -> dist/
+
+      - name: Clean up devDependencies for production artifact
+        run: |
+          rm -rf node_modules
+          yarn install --production=true --frozen-lockfile
+
+      - name: Create deploy artifact
+        run: tar -czf deploy.tar.gz -C . dist node_modules package.json yarn.lock
+
+      - name: Transfer artifact to Production Server
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: 'deploy.tar.gz'
+          target: '${{ secrets.PROD_APP_BASE_PATH }}/${{ secrets.PROD_TMP_SUBDIR }}/'
+
+      - name: Deploy on Production Server
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+
+            APP_ROOT_DIR="${{ secrets.PROD_APP_BASE_PATH }}"
+            RELEASES_SUBDIR="${{ secrets.PROD_RELEASES_SUBDIR }}"
+            TMP_SUBDIR="${{ secrets.PROD_TMP_SUBDIR }}"
+
+            TIMESTAMP=$(date +%Y%m%d%H%M%S)
+            RELEASE_DIR="$APP_ROOT_DIR/$RELEASES_SUBDIR/$TIMESTAMP"
+            TEMP_TAR="$APP_ROOT_DIR/$TMP_SUBDIR/deploy.tar.gz"
+
+            echo "Creating release directory: $RELEASE_DIR"
+            mkdir -p "$RELEASE_DIR"
+
+            echo "Extracting artifact to $RELEASE_DIR"
+            tar -xzf "$TEMP_TAR" -C "$RELEASE_DIR"
+
+            echo "Cleaning up temporary tar file"
+            rm "$TEMP_TAR"
+
+            echo "Updating current symlink to $RELEASE_DIR"
+            ln -sfn "$RELEASE_DIR" "$APP_ROOT_DIR/current_new"
+            mv -Tf "$APP_ROOT_DIR/current_new" "$APP_ROOT_DIR/current"
+
+            echo "Restarting feedgen.service"
+            sudo systemctl restart feedgen.service
+
+            echo "Cleaning up old releases (keeping last 5)"
+            cd "$APP_ROOT_DIR/$RELEASES_SUBDIR"
+            ls -tp | grep -v '/$' | tail -n +6 | xargs -I {} rm -rf {}
+            echo "Deployment completed successfully!"
