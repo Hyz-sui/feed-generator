@@ -12,6 +12,7 @@ import wellKnown from './well-known'
 import { TopicsProvider } from './providers/topics-provider'
 import { AlgosProvider } from './providers/algos-provider'
 import { MinifiedDb } from './db/minified-db'
+import { join } from 'path'
 
 export class FeedGenerator {
   public app: express.Application
@@ -68,7 +69,7 @@ export class FeedGenerator {
     describeGenerator(server, ctx, algosProvider)
     app.use(server.xrpc.router)
     app.use(wellKnown(ctx))
-    app.use(express.static(`${__dirname}/public`))
+    app.use(express.static(join(__dirname, '..', 'public')))
 
     return new FeedGenerator(app, db, firehose, cfg)
   }
