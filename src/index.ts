@@ -40,7 +40,9 @@ const run = async () => {
         case 1:
           return new ConsoleLoggingService()
         case 2:
-          return new FileLoggingService('data/feedgen.log')
+          return new FileLoggingService(
+            process.env.FILE_LOG_PATH ?? 'data/feedgen.log'
+          )
         case 3:
           return new WinstonLoggingService(
             winston.createLogger(
