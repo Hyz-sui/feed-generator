@@ -31,7 +31,7 @@ jobs:
           yarn install --production=true --frozen-lockfile
 
       - name: Create deploy artifact
-        run: tar -czf deploy.tar.gz -C . dist node_modules package.json yarn.lock
+        run: tar -czf deploy.tar.gz -C . dist node_modules package.json public yarn.lock
 
       - name: Transfer artifact to Production Server
         uses: appleboy/scp-action@v1.0.0
