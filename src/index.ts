@@ -18,7 +18,9 @@ import { createDb } from './db'
 import { isMinifiedDb } from './db/minified-db'
 
 const run = async () => {
-  dotenv.config()
+  // 設定されていなければデフォルトを使用
+  const dotenvPath = process.env.FEEDGEN_DOTENV_PATH
+  dotenv.config(dotenvPath ? { path: dotenvPath } : undefined)
 
   // ロギングを初期化
   const loggerConfig = maybeInt(process.env.LOGGER)
