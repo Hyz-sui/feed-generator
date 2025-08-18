@@ -108,7 +108,6 @@ jobs:
             echo "EOF"
           } >> "${GITHUB_OUTPUT}"
 
-
       - name: 'Get PR details (issue_comment)'
         id: 'get_pr_comment'
         if: |-
@@ -385,6 +384,9 @@ jobs:
             1. Creating a pending review: Use the mcp__github__create_pending_pull_request_review to create a Pending Pull Request Review.
 
             2. Adding review comments:
+
+                All comments (both normal and inline) MUST be provided in both English and Japanese. Wrap each language version within `<details>` and `<summary>` tags, for example: `<details><summary>English</summary>...</details>` and `<details><summary>日本語</summary>...</details>`. Ensure the severity emoji is included for each language version.
+
                 2.1 Use the mcp__github__add_comment_to_pending_review to add comments to the Pending Pull Request Review. Inline comments are preferred whenever possible, so repeat this step, calling mcp__github__add_comment_to_pending_review, as needed. All comments about specific lines of code should use inline comments. It is preferred to use code suggestions when possible, which include a code block that is labeled "suggestion", which contains what the new code should be. All comments should also have a severity. The syntax is:
                   Normal Comment Syntax:
                   <COMMENT>
@@ -424,6 +426,8 @@ jobs:
 
               3.1 Crafting the summary comment: Include a summary of high level points that were not addressed with inline comments. Be concise. Do not repeat details mentioned inline.
 
+                The entire summary comment MUST be provided in both English and Japanese. Wrap each language version within `<details>` and `<summary>` tags, for example: `<details><summary>English</summary>...</details>` and `<details><summary>日本語</summary>...</details>`.
+
                 Structure your summary comment using this exact format with markdown:
                 ## 📋 Review Summary
 
@@ -439,7 +443,6 @@ jobs:
             ## Final Instructions
 
             Remember, you are running in a VM and no one reviewing your output. Your review must be posted to GitHub using the MCP tools to create a pending review, add comments to the pending review, and submit the pending review.
-
 
       - name: 'Post PR review failure comment'
         if: |-
