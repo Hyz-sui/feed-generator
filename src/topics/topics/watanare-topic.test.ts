@@ -164,9 +164,17 @@ describe('WatanareTopic', () => {
       expect(result.reason).toBe('alt')
     })
 
-    // it('should return true for posts with multiple matching patterns', async () => {
-    //
-    // })
+    it('should return true for posts with multiple matching patterns', async () => {
+      const post: Post = {
+        text: '真唯と香穂がうんたらかんたら',
+        $type: 'app.bsky.feed.post',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        langs: ['ja'],
+      }
+      const result = await topic.isMatch(niceDid, post)
+      expect(result.isMatch).toBe(true)
+      expect(result.reason).toBe('multiPattern')
+    })
 
     it('should return false for posts with "nofeed" tag', async () => {
       const post: Post = {
