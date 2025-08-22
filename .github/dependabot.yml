@@ -23,3 +23,35 @@ updates:
           - "jest"
           - "ts-jest"
           - "@types/jest"
+      express:
+        patterns:
+          - "express"
+          - "@types/express"
+          - "body-parser"
+          - "@types/body-parser"
+          - "cors"
+          - "@types/cors"
+      sqlite:
+        patterns:
+          - "better-sqlite3"
+          - "@types/better-sqlite3"
+          - "sqlite3"
+          - "@types/sqlite3"
+      typescript:
+        patterns:
+          - "typescript"
+          - "ts-node"
+          - "tslib"
+          - "@types/node"
+      linting-formatting:
+        patterns:
+          - "eslint"
+          - "prettier"
+          - "@typescript-eslint/*"
+          - "eslint-plugin-*"
+          - "eslint-config-*"
+      utilities:
+        patterns:
+          - "dotenv"
+          - "axios"
+          - "node-fetch"
