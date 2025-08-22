@@ -132,12 +132,9 @@ export class WatanareTopic implements Topic {
       return { isMatch: true, reason: 'text' }
     }
     // alt
-    const alts = (() => {
-      if (isEmbedImages(record.embed)) {
-        return record.embed.images.map((image) => image.alt)
-      }
-      return undefined
-    })()
+    const alts = isEmbedImages(record.embed)
+      ? record.embed.images.map((image) => image.alt)
+      : undefined
     if (alts) {
       for (const alt of alts) {
         if (regex.test(alt)) {
