@@ -1,0 +1,57 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: "npm" # See documentation for possible values
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
+    target-branch: "develop"
+    groups:
+      atproto:
+        patterns:
+          - "@atproto/*"
+      winston:
+        patterns:
+          - "winston"
+          - "winston-*"
+      jest:
+        patterns:
+          - "jest"
+          - "ts-jest"
+          - "@types/jest"
+      express:
+        patterns:
+          - "express"
+          - "@types/express"
+          - "body-parser"
+          - "@types/body-parser"
+          - "cors"
+          - "@types/cors"
+      sqlite:
+        patterns:
+          - "better-sqlite3"
+          - "@types/better-sqlite3"
+          - "sqlite3"
+          - "@types/sqlite3"
+      typescript:
+        patterns:
+          - "typescript"
+          - "ts-node"
+          - "tslib"
+          - "@types/node"
+      linting-formatting:
+        patterns:
+          - "eslint"
+          - "prettier"
+          - "@typescript-eslint/*"
+          - "eslint-plugin-*"
+          - "eslint-config-*"
+      utilities:
+        patterns:
+          - "dotenv"
+          - "axios"
+          - "node-fetch"
