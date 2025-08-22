@@ -9,3 +9,16 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    groups:
+      atproto:
+        patterns:
+          - "@atproto/*"
+      winston:
+        patterns:
+          - "winston"
+          - "winston-*"
+      jest:
+        patterns:
+          - "jest"
+          - "ts-jest"
+          - "@types/jest"
