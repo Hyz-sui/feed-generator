@@ -26,7 +26,7 @@
     "express": "^5.1.0",
     "kysely": "^0.28.5",
     "mime": "^4.0.7",
-    "multiformats": "^9.9.0",
+    "multiformats": "^13.4.0",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0",
     "winston-slack-webhook-transport": "^2.3.6"
