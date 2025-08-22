@@ -7,7 +7,7 @@ import { Logger, LoggingService } from '../../services/logging/logging-service'
 import * as pattern from '../../text/pattern'
 import * as postUtility from '../../atproto/post-utility'
 import { MinifiedDb } from '../../db/minified-db'
-import { isImage } from '../../lexicon/types/app/bsky/embed/images'
+import { isMain as isEmbedImages } from '../../lexicon/types/app/bsky/embed/images'
 
 // マッチ時点で適合する正規表現
 const regex =
@@ -133,10 +133,8 @@ export class WatanareTopic implements Topic {
     }
     // alt
     const alts = (() => {
-      if (record.embed?.images && Array.isArray(record.embed.images)) {
-        return record.embed.images
-          .filter((image) => isImage(image))
-          .map((image) => image.alt)
+      if (isEmbedImages(record.embed)) {
+        return record.embed.images.map((image) => image.alt)
       }
       return undefined
     })()
