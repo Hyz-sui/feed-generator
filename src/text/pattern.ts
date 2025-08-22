@@ -19,25 +19,15 @@ export const includesCountOf = (
   let matchCount = 0
   const subjects = Array.isArray(test) ? test : [test]
   for (const pattern of patterns) {
-    for (const subject of subjects) {
-      if (typeof pattern === 'string') {
-        if (subject.includes(pattern)) {
-          matchCount++
-          // 目標数に達した時点でtrueを返却
-          if (matchCount >= requiredMatchCount) {
-            return true
-          }
-          // 1度マッチしたら、同じパターンには二度とマッチしない
-          break
-        }
-      } else if (pattern.test(subject)) {
-        matchCount++
-        // 目標数に達した時点でtrueを返却
-        if (matchCount >= requiredMatchCount) {
-          return true
-        }
-        // 1度マッチしたら、同じパターンには二度とマッチしない
-        break
+    const isMatch = subjects.some((subject) =>
+      typeof pattern === 'string'
+        ? subject.includes(pattern)
+        : pattern.test(subject)
+    )
+    if (isMatch) {
+      matchCount++
+      if (matchCount >= requiredMatchCount) {
+        return true
       }
     }
   }
